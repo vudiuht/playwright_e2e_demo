@@ -1,0 +1,46 @@
+image: mcr.microsoft.com/playwright:v1.52.0-focal
+
+stages:
+  - test
+
+variables:
+  CI: "true"
+
+.test_template: &test_template
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+    expire_in: 1 week
+
+ui-tests-prod:
+  <<: *test_template
+  stage: test
+  script:
+    - npm ci
+    - TEST_ENV=prod npx playwright test tests/ui/
+
+api-tests-prod:
+  <<: *test_template
+  stage: test
+  script:
+    - npm ci
+    - TEST_ENV=prod npm run test:api
+
+ui-tests-staging:
+  <<: *test_template
+  stage: test
+  script:
+    - npm ci
+    - TEST_ENV=staging npx playwright test tests/ui/
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"
+
+api-tests-staging:
+  <<: *test_template
+  stage: test
+  script:
+    - npm ci
+    - TEST_ENV=staging npm run test:api
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"

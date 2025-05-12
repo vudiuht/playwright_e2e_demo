@@ -1,0 +1,23 @@
+{
+  "name": "assignment1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --config=api-playwright.config.ts",
+    "test:dev": "TEST_ENV=dev playwright test",
+    "test:staging": "TEST_ENV=staging playwright test",
+    "test:prod": "TEST_ENV=prod playwright test",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.17"
+  }
+}

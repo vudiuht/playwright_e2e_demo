@@ -1,0 +1,68 @@
+trigger:
+  - main
+  - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+parameters:
+  - name: testEnvironment
+    displayName: Test Environment
+    type: string
+    default: prod
+    values:
+      - dev
+      - staging
+      - prod
+
+jobs:
+  - job: UITests
+    displayName: 'UI Tests'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '18.x'
+        displayName: 'Install Node.js'
+
+      - script: npm ci
+        displayName: 'Install dependencies'
+
+      - script: npx playwright install --with-deps
+        displayName: 'Install Playwright browsers'
+
+      - script: TEST_ENV=${{ parameters.testEnvironment }} npx playwright test tests/ui/
+        displayName: 'Run UI tests'
+        env:
+          CI: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish UI test report'
+        condition: always()
+        inputs:
+          targetPath: 'playwright-report'
+          artifact: 'playwright-report-ui'
+          publishLocation: 'pipeline'
+
+  - job: APITests
+    displayName: 'API Tests'
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '18.x'
+        displayName: 'Install Node.js'
+
+      - script: npm ci
+        displayName: 'Install dependencies'
+
+      - script: TEST_ENV=${{ parameters.testEnvironment }} npm run test:api
+        displayName: 'Run API tests'
+        env:
+          CI: true
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish API test report'
+        condition: always()
+        inputs:
+          targetPath: 'playwright-report'
+          artifact: 'playwright-report-api'
+          publishLocation: 'pipeline'
